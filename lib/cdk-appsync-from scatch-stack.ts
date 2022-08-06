@@ -1,4 +1,4 @@
-import { Stack, StackProps, aws_iam as iam } from "aws-cdk-lib";
+import { Stack, StackProps, aws_iam as iam, RemovalPolicy } from "aws-cdk-lib";
 import * as appsync from "aws-cdk-lib/aws-appsync";
 // import {
 //   AccountRecovery,
@@ -10,12 +10,23 @@ import { Construct } from "constructs";
 import { readFileSync } from "fs";
 import { resolve, join } from "path";
 import { NodejsFunction } from "aws-cdk-lib/aws-lambda-nodejs";
+import { AttributeType, Table, BillingMode } from "aws-cdk-lib/aws-dynamodb";
 
 // import * as sqs from 'aws-cdk-lib/aws-sqs';
 
 export class CdkAppsyncFromScatchStack extends Stack {
   constructor(scope: Construct, id: string, props?: StackProps) {
     super(scope, id, props);
+
+    const userDataBase = new Table(this, "userDataBase", {
+      partitionKey: {
+        name: "id",
+        type: AttributeType.STRING,
+      },
+      tableName: "userDataBase",
+      billingMode: BillingMode.PAY_PER_REQUEST,
+      removalPolicy: RemovalPolicy.DESTROY, //will delete table after deletting cloudfomration
+    });
 
     // const userPool = new UserPool(this, "cdk-products-user-pool", {
     //   selfSignUpEnabled: true,
@@ -96,9 +107,9 @@ export class CdkAppsyncFromScatchStack extends Stack {
       }
     );
 
-    const HJelloApi_resolver: appsync.CfnResolver = new appsync.CfnResolver(
+    const getMessage_resolver: appsync.CfnResolver = new appsync.CfnResolver(
       this,
-      "getToDos_resolver",
+      "getMessageQuerryResolver",
       {
         apiId: api.attrApiId,
         typeName: "Query",
@@ -107,7 +118,24 @@ export class CdkAppsyncFromScatchStack extends Stack {
         dataSourceName: lambdaDataSource.name,
       }
     );
-    HJelloApi_resolver.node.addDependency(apiSchema);
-    HJelloApi_resolver.node.addDependency(lambdaDataSource);
+
+    const getUserById_resolver: appsync.CfnResolver = new appsync.CfnResolver(
+      this,
+      "getUserByIdQueryresolver",
+      {
+        apiId: api.attrApiId,
+        typeName: "Query",
+        fieldName: "getUserById",
+        dataSourceName: lambdaDataSource.name,
+      }
+    );
+
+    getMessage_resolver.node.addDependency(apiSchema);
+    getMessage_resolver.node.addDependency(lambdaDataSource);
+
+    getUserById_resolver.node.addDependency(apiSchema);
+    getUserById_resolver.node.addDependency(lambdaDataSource);
+
+    userDataBase.grantReadWriteData(helloLambdaNodeJs);
   }
 }

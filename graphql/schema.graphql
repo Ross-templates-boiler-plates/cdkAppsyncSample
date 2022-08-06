@@ -4,4 +4,11 @@ type Message {
 
 type Query {
   getMessage: Message!
+  getUserById(userId: ID!): User
+}
+
+type User {
+  id: ID!
+  name: String!
+  location: String!
 }
