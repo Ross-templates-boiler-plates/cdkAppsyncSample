@@ -28,6 +28,8 @@ export class CdkAppsyncFromScatchStack extends Stack {
       removalPolicy: RemovalPolicy.DESTROY, //will delete table after deletting cloudfomration
     });
 
+    //userpool is not actove for now
+    //******************************
     // const userPool = new UserPool(this, "cdk-products-user-pool", {
     //   selfSignUpEnabled: true,
     //   accountRecovery: AccountRecovery.PHONE_AND_EMAIL,
@@ -48,6 +50,8 @@ export class CdkAppsyncFromScatchStack extends Stack {
     // const userPoolClient = new UserPoolClient(this, "UserPoolClient", {
     //   userPool,
     // });
+
+    //******************************
 
     const api = new appsync.CfnGraphQLApi(this, "HelloApi", {
       name: `HelloApi`,
@@ -114,7 +118,6 @@ export class CdkAppsyncFromScatchStack extends Stack {
         apiId: api.attrApiId,
         typeName: "Query",
         fieldName: "getMessage",
-        //fieldName: "all",
         dataSourceName: lambdaDataSource.name,
       }
     );

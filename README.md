@@ -1,14 +1,7 @@
-# Welcome to your CDK TypeScript project
+Auther:Ross
 
-This is a blank project for CDK development with TypeScript.
+This is a sample cdk code to create appsync.
 
-The `cdk.json` file tells the CDK Toolkit how to execute your app.
+ref for graphql part:https://www.youtube.com/watch?v=_9DFFg-pNss&ab_channel=NaderDabit
 
-## Useful commands
-
-* `npm run build`   compile typescript to js
-* `npm run watch`   watch for changes and compile
-* `npm run test`    perform the jest unit tests
-* `cdk deploy`      deploy this stack to your default AWS account/region
-* `cdk diff`        compare deployed stack with current state
-* `cdk synth`       emits the synthesized CloudFormation template
+ref for cdk part: https://www.youtube.com/watch?v=DOGadkjV7Hs&t=315s&ab_channel=NaderDabit
