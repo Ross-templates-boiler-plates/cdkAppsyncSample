@@ -1,18 +1,18 @@
 import { Stack, StackProps, aws_iam as iam, RemovalPolicy } from "aws-cdk-lib";
 import * as appsync from "aws-cdk-lib/aws-appsync";
-// import {
-//   AccountRecovery,
-//   UserPool,
-//   UserPoolClient,
-//   VerificationEmailStyle,
-// } from "aws-cdk-lib/aws-cognito";
+import {
+  AccountRecovery,
+  UserPool,
+  UserPoolClient,
+  VerificationEmailStyle,
+} from "aws-cdk-lib/aws-cognito";
 import { Construct } from "constructs";
 import { readFileSync } from "fs";
 import { resolve, join } from "path";
 import { NodejsFunction } from "aws-cdk-lib/aws-lambda-nodejs";
 import { AttributeType, Table, BillingMode } from "aws-cdk-lib/aws-dynamodb";
 
-// import * as sqs from 'aws-cdk-lib/aws-sqs';
+import * as sqs from "aws-cdk-lib/aws-sqs";
 
 export class CdkAppsyncFromScatchStack extends Stack {
   constructor(scope: Construct, id: string, props?: StackProps) {
@@ -30,37 +30,68 @@ export class CdkAppsyncFromScatchStack extends Stack {
 
     //userpool is not actove for now
     //******************************
-    // const userPool = new UserPool(this, "cdk-products-user-pool", {
-    //   selfSignUpEnabled: true,
-    //   accountRecovery: AccountRecovery.PHONE_AND_EMAIL,
-    //   userVerification: {
-    //     emailStyle: VerificationEmailStyle.CODE,
-    //   },
-    //   autoVerify: {
-    //     email: true,
-    //   },
-    //   standardAttributes: {
-    //     email: {
-    //       required: true,
-    //       mutable: true,
-    //     },
-    //   },
-    // });
+    const userPool = new UserPool(this, "cdk-products-user-pool", {
+      selfSignUpEnabled: true,
+      accountRecovery: AccountRecovery.PHONE_AND_EMAIL,
+      userVerification: {
+        emailStyle: VerificationEmailStyle.CODE,
+      },
+      autoVerify: {
+        email: true,
+      },
+      standardAttributes: {
+        email: {
+          required: true,
+          mutable: true,
+        },
+      },
+    });
 
-    // const userPoolClient = new UserPoolClient(this, "UserPoolClient", {
-    //   userPool,
-    // });
+    const userPoolClient = new UserPoolClient(this, "UserPoolClient", {
+      userPool,
+    });
 
     //******************************
 
     const api = new appsync.CfnGraphQLApi(this, "HelloApi", {
       name: `HelloApi`,
-      authenticationType: "API_KEY",
+      authenticationType: "AMAZON_COGNITO_USER_POOLS",
+      userPoolConfig: {
+        awsRegion: "us-west-2",
+        userPoolId: userPool.userPoolId,
+        defaultAction: "ALLOW",
+      },
     });
 
-    new appsync.CfnApiKey(this, "HelloApiKey", {
-      apiId: api.attrApiId,
-    });
+    // new appsync.CfnApiKey(this, "HelloApiKey", {
+    //   apiId: api.attrApiId,
+    // });
+
+    //*******************
+    // const additionalAuthenticationProviderProperty: appsync.CfnGraphQLApi.AdditionalAuthenticationProviderProperty =
+    //   {
+    //     authenticationType: "AMAZON_COGNITO_USER_POOLS",
+
+    //     // the properties below are optional
+    //     lambdaAuthorizerConfig: {
+    //       authorizerResultTtlInSeconds: 123,
+    //       authorizerUri: "authorizerUri",
+    //       identityValidationExpression: "identityValidationExpression",
+    //     },
+    //     openIdConnectConfig: {
+    //       authTtl: 123,
+    //       clientId: "clientId",
+    //       iatTtl: 123,
+    //       issuer: "issuer",
+    //     },
+    //     userPoolConfig: {
+    //       appIdClientRegex: "appIdClientRegex",
+    //       awsRegion: "awsRegion",
+    //       userPoolId: "userPoolId",
+    //     },
+    //   };
+
+    //******** */
 
     const definition = readFileSync(
       resolve(__dirname, "../graphql/schema.graphql")
