@@ -1,13 +1,18 @@
-type Message {
+"""
+add @aws_api_key where you need api key
+add  @aws_cognito_user_pools wehere you need user pools
+it should be applied to all related types
+"""
+type Message @aws_api_key @aws_cognito_user_pools {
   data: String!
 }
 
 type Query {
-  getMessage: Message!
-  getUserById(userId: ID!): User
+  getMessage: Message! @aws_api_key @aws_cognito_user_pools
+  getUserById(userId: ID!): User @aws_api_key @aws_cognito_user_pools
 }
 
-type User {
+type User @aws_api_key @aws_cognito_user_pools {
   id: ID!
   name: String!
   location: String!

@@ -53,45 +53,32 @@ export class CdkAppsyncFromScatchStack extends Stack {
 
     //******************************
 
-    const api = new appsync.CfnGraphQLApi(this, "HelloApi", {
-      name: `HelloApi`,
-      authenticationType: "AMAZON_COGNITO_USER_POOLS",
-      userPoolConfig: {
-        awsRegion: "us-west-2",
-        userPoolId: userPool.userPoolId,
-        defaultAction: "ALLOW",
-      },
-    });
+    const additionalAuthenticationProviderProperty: appsync.CfnGraphQLApi.AdditionalAuthenticationProviderProperty =
+      {
+        authenticationType: "AMAZON_COGNITO_USER_POOLS",
 
-    // new appsync.CfnApiKey(this, "HelloApiKey", {
-    //   apiId: api.attrApiId,
-    // });
-
-    //*******************
-    // const additionalAuthenticationProviderProperty: appsync.CfnGraphQLApi.AdditionalAuthenticationProviderProperty =
-    //   {
-    //     authenticationType: "AMAZON_COGNITO_USER_POOLS",
-
-    //     // the properties below are optional
-    //     lambdaAuthorizerConfig: {
-    //       authorizerResultTtlInSeconds: 123,
-    //       authorizerUri: "authorizerUri",
-    //       identityValidationExpression: "identityValidationExpression",
-    //     },
-    //     openIdConnectConfig: {
-    //       authTtl: 123,
-    //       clientId: "clientId",
-    //       iatTtl: 123,
-    //       issuer: "issuer",
-    //     },
-    //     userPoolConfig: {
-    //       appIdClientRegex: "appIdClientRegex",
-    //       awsRegion: "awsRegion",
-    //       userPoolId: "userPoolId",
-    //     },
-    //   };
+        // the properties below are optional
+        userPoolConfig: {
+          awsRegion: "us-west-2",
+          userPoolId: userPool.userPoolId,
+        },
+      };
 
     //******** */
+
+    const api = new appsync.CfnGraphQLApi(this, "HelloApi", {
+      name: `HelloApi`,
+      authenticationType: "API_KEY",
+      additionalAuthenticationProviders: [
+        additionalAuthenticationProviderProperty,
+      ],
+    });
+
+    new appsync.CfnApiKey(this, "HelloApiKey", {
+      apiId: api.attrApiId,
+    });
+
+    //*******************
 
     const definition = readFileSync(
       resolve(__dirname, "../graphql/schema.graphql")
