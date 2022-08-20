@@ -31,3 +31,6 @@ query MyQuery {
   }
 }
 ```
+
+how to get user id of the call on appsync:
+https://stackoverflow.com/questions/29928401/how-to-get-the-cognito-identity-id-in-aws-lambda

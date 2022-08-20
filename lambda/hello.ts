@@ -19,6 +19,8 @@ async function getUserById(userId: string) {
 }
 
 async function handler(event: any, context: any) {
+  console.log("*****context", context);
+  console.log("*****event", event);
   if (event.info.fieldName == "getMessage") {
     return { data: "Hello Ross" };
   }
